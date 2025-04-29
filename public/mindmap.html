@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mindmap Visualization</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .mindmap-container {
+            width: 100%;
+            height: 600px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            font-size: 1.2rem;
+            color: #6c757d;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        .node circle {
+            fill: #fff;
+            stroke: #007bff;
+            stroke-width: 2px;
+        }
+        .node text {
+            font-size: 12px;
+            font-family: sans-serif;
+        }
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 1.5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Text Analysis Mindmap</h1>
+            <p class="text-muted">Visualize the hierarchical structure of your text</p>
+        </div>
+        
+        <div class="d-flex justify-content-between mb-4">
+            <button id="backBtn" class="btn btn-outline-secondary">
+                Back to Analysis
+            </button>
+            <div>
+                <button id="zoomInBtn" class="btn btn-outline-primary me-2">
+                    Zoom In
+                </button>
+                <button id="zoomOutBtn" class="btn btn-outline-primary me-2">
+                    Zoom Out
+                </button>
+                <button id="resetBtn" class="btn btn-outline-primary">
+                    Reset
+                </button>
+            </div>
+        </div>
+        
+        <div id="loadingIndicator" class="loading">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        
+        <div id="errorContainer" class="d-none">
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Error!</h4>
+                <p id="errorMessage">Failed to load mindmap data. Please try again.</p>
+            </div>
+        </div>
+        
+        <div id="mindmap-container" class="mindmap-container"></div>
+    </div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="mindmap.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const backBtn = document.getElementById('backBtn');
+            const mindmapContainer = document.getElementById('mindmap-container');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const errorContainer = document.getElementById('errorContainer');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Load mindmap data from the server
+            fetch('/api/mindmap')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.mindmapData) {
+                        // Hide loading indicator
+                        loadingIndicator.classList.add('d-none');
+                        
+                        // Render the mindmap
+                        renderMindmap(data.mindmapData);
+                    } else {
+                        // Show error message
+                        loadingIndicator.classList.add('d-none');
+                        errorContainer.classList.remove('d-none');
+                        errorMessage.textContent = data.error || 'Failed to load mindmap data. Please try again.';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading mindmap data:', error);
+                    loadingIndicator.classList.add('d-none');
+                    errorContainer.classList.remove('d-none');
+                    errorMessage.textContent = 'Failed to load mindmap data. Please try again.';
+                });
+            
+            backBtn.addEventListener('click', () => {
+                window.location.href = '/';
+            });
+        });
+    </script>
+</body>
+</html>

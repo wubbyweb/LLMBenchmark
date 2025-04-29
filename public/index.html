@@ -116,6 +116,7 @@
         </div>
     </div>
 
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const dropArea = document.getElementById('dropArea');
@@ -129,6 +130,15 @@
             const originalText = document.getElementById('originalText');
             const toggleOriginalBtn = document.getElementById('toggleOriginalBtn');
             const downloadBtn = document.getElementById('downloadBtn');
+            
+            // Create a new button for the mindmap view
+            const mindmapBtn = document.createElement('button');
+            mindmapBtn.className = 'btn btn-outline-primary ms-2';
+            mindmapBtn.textContent = 'View Mindmap';
+            mindmapBtn.id = 'mindmapBtn';
+            
+            // Add the button to the UI
+            analyzeBtn.parentNode.appendChild(mindmapBtn);
             
             let currentFile = null;
             
@@ -223,6 +233,11 @@
                     originalTextContainer.classList.add('d-none');
                     toggleOriginalBtn.textContent = 'Show Original Text';
                 }
+            });
+            
+            // View mindmap
+            mindmapBtn.addEventListener('click', () => {
+                window.location.href = '/mindmap';
             });
             
             // Download processed text
