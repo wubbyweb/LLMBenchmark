@@ -172,3 +172,31 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Temporary files
+*.swp
+.DS_Store
+
+# Node Modules
+node_modules/
+
+# Build output
+dist/
+
+# .env files
+.env
+
+# ESLint cache
+.eslintcache
+
+# TypeScript build info
+*.tsbuildinfo
+*.txt
+package-lock.json
