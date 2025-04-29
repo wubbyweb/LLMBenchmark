@@ -9,6 +9,9 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Middleware to ensure JSON responses
+app.use(express.json());
+
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -71,7 +74,7 @@ async function analyzeTextWithOpenAI(text) {
       {
         model: "gpt-4o",
         messages: [
-          { role: "system", content: "You are a text analysis assistant that generates hierarchical headings for text documents." },
+          { role: "system", content: "You are a text analysis assistant that generates hierarchical headings for text documents. Respond in the following JSON format:\n\n{\n  \"content\": {\n    \"heading\": {\n      \"level\": 1,\n      \"text\": \"Main Heading\",\n     \"content\" : [\n      {\n        \"type\": \"paragraph\",\n        \"text\": \"Some introductory paragraph here.\"\n      },\n      {\n          \"heading\": {\n          \"level\": 2,\n          \"text\": \"Subheading 1\",\n          \"content\": [\n            {\n            \"type\": \"paragraph\",\n            \"text\": \"Content related to Subheading 1.\"\n          },\n          {\n            \"heading\": {\n              \"level\": 3,\n               \"text\": \"Sub-subheading 1.1\",\n               \"content\": [\n                 {\n                    \"type\": \"paragraph\",\n                     \"text\": \"Content for sub-subheading 1.1\"\n                   }\n                ]\n            }\n           },\n           {\n             \"heading\": {\n              \"level\": 3,\n              \"text\": \"Sub-subheading 1.2\",\n              \"content\": [\n                  {\n                      \"type\": \"paragraph\",\n                       \"text\": \"Content for sub-subheading 1.2\"\n                    }\n                ]\n              }\n           }\n         ]\n        }\n      },\n      {\n          \"heading\": {\n          \"level\": 2,\n          \"text\": \"Subheading 2\",\n          \"content\": [\n              {\n              \"type\": \"paragraph\",\n              \"text\": \"Content related to Subheading 2.\"\n             },\n             {\n               \"heading\": {\n                  \"level\": 3,\n                  \"text\": \"Sub-subheading 2.1\",\n                 \"content\": [\n                  {\n                    \"type\": \"paragraph\",\n                    \"text\": \"Content for sub-subheading 2.1\"\n                    }\n                   ]\n                 }\n              }\n            ]\n          }\n        }\n       ]\n    }\n  }\n}\n" },
           { role: "user", content: `Please analyze the following text and generate hierarchical headings (level 1 through 5) based on the text structure and content:\n\n${text}` }
         ],
         max_tokens: 2000,
@@ -85,7 +88,13 @@ async function analyzeTextWithOpenAI(text) {
       }
     );
 
-    return response.data.choices[0].message.content;
+    // Format the response as JSON
+    const result = {
+      status: 'success',
+      analysis: response.data.choices[0].message.content
+    };
+    
+    return JSON.stringify(result);
   } catch (error) {
     console.error('Error calling OpenAI API:', error);
     throw new Error('Failed to analyze text with OpenAI');
@@ -94,5 +103,8 @@ async function analyzeTextWithOpenAI(text) {
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(JSON.stringify({
+    status: 'running',
+    port: port
+  }));
 });
